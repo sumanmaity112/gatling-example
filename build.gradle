@@ -1,0 +1,16 @@
+plugins {
+    id 'java'
+    id 'idea'
+    id "io.gatling.gradle" version "3.7.6.2"
+}
+
+group 'com.suman'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+
+}
