@@ -11,6 +11,43 @@ repositories {
     mavenCentral()
 }
 
-dependencies {
-
+ext {
+    reflectionsVersion= "0.9.12"
 }
+
+dependencies {
+    gatling "org.reflections:reflections:${reflectionsVersion}"
+}
+
+configurations {
+    fatJarDependencies.extendsFrom gatling
+}
+
+task fatJar(type: Jar, dependsOn: ['gatlingClasses', 'processResources']) {
+    group =  "build"
+    manifest {
+        attributes 'Implementation-Title': project.name,
+                'Implementation-Version': project.version,
+                'Main-Class': 'com.suman.example.gatling.Application'
+    }
+
+    exclude 'META-INF/MANIFEST.MF'
+    exclude 'META-INF/*.SF'
+    exclude 'META-INF/*.DSA'
+    exclude 'META-INF/*.RSA'
+
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+    archiveClassifier = "all"
+
+    from files(sourceSets.main.output.classesDirs)
+    from files(sourceSets.gatling.output)
+    from {
+        configurations['fatJarDependencies']
+                .collect { it.isDirectory() ? it : zipTree(it) }
+    }
+    with jar
+}
+
+tasks.named("jar") { finalizedBy("fatJar") }
+
